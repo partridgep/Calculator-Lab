@@ -35,6 +35,9 @@ main {
     font-size: 70px;
     text-align: right;  
     padding: 20px;
+    font-family: 'Orbitron', sans-serif;
+
+
 
 }
 
@@ -60,6 +63,10 @@ main {
     background-color: #13131C;
     border-radius: 50%;
     border: 2px solid #3C3C57;
+}
+
+.circle:active {
+    background-color: #32324a;
 }
 
 button {

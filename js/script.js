@@ -27,6 +27,7 @@ const buttonEl = document.querySelector('button');
 /*----- event listeners -----*/
 calcButtonsEl.addEventListener('click', handleClick);
 buttonEl.addEventListener('click', init)
+document.addEventListener('keypress', handleKeyPress);
 
 /*----- functions -----*/
 init(); //call function so that immediately on game mode start game then 
@@ -50,43 +51,84 @@ function init() {
 
 // *handling of clicks function*
 function handleClick(e) {
-    //get integer equivalent of button clicked
-    clickedInt = parseInt(e.target.innerText);
-    //if it's not a number, but one of the operators or decimal point
-    if (Number.isNaN(clickedInt))  {
-        //if it is a decimal
-        if (e.target.innerText === '.') {
-            //check to see if we can still add a decimal
-            if (canAddDecimal === true) {
-                //add to array of selected nums
-                selected_ints.push(e.target.innerText);
-                //signal that we've added a decimal to array
-                decimal = true;
-                //make sure we won't be able to add a second decimal to number
-                canAddDecimal = false;
+
+    //get value of button clicked
+    let buttonClicked = e.target.innerText;
+
+    //call function to handle input for calculation
+    handleCalcInput(buttonClicked);
+
+}
+
+// *handling of key press function*
+function handleKeyPress(e) {
+    
+    //get value of keyboard key pressed
+    let buttonClicked = e.key;
+
+    //change values in case it doesn't match the button
+    if (buttonClicked === '*') {
+        buttonClicked = 'x';
+    }
+    else if (buttonClicked === '/') {
+        buttonClicked = '÷';
+    }
+    else if (buttonClicked === 'Enter') {
+        buttonClicked = '=';
+    }
+
+    //call function to handle input for calculation
+    handleCalcInput(buttonClicked);
+
+}
+
+// *handling of calculation input function*
+function handleCalcInput(clickedButton) {
+
+        //briefly change corresponding button to simulate click
+        animateClick(clickedButton);
+        
+        //get integer equivalent of button clicked
+        clickedInt = parseInt(clickedButton);
+        
+        //if it's not a number, but one of the operators or decimal point
+        if (Number.isNaN(clickedInt))  {
+            //if it is a decimal
+            if (clickedButton === '.') {
+                if (checkOperationLength() === false) return;
+                //check to see if we can still add a decimal
+                if (canAddDecimal === true) {
+                    //add to array of selected nums
+                    selected_ints.push(clickedButton);
+                    //signal that we've added a decimal to array
+                    decimal = true;
+                    //make sure we won't be able to add a second decimal to number
+                    canAddDecimal = false;
+                }
+            }
+            //if it's not a decimal (and still not a number)
+            else {
+                //that means it's an operator
+                //get operator sign
+                clickedOperator = clickedButton;
+                //call the operator handler function
+                handleOperation();
+                //set operator check to true
+                operated = true;
             }
         }
-        //if it's not a decimal (and still not a number)
+        //else if it is a number
         else {
-            //that means it's an operator
-            //get operator sign
-            clickedOperator = e.target.innerText;
-            //call the operator handler function
-            handleOperation();
-            //set operator check to true
-            operated = true;
-        }
-    }
-    //else if it is a number
-    else {
-        //reset operator check to false
-        operated = false;
-        //push all ints into the ints array
-        selected_ints.push(clickedInt);
-        //form current number by stringing along all previous ints
-        currentNum = parseFloat(selected_ints.join(''));
-        }
-    render();
+            if (checkOperationLength() === false) return;
+
+            //reset operator check to false
+            operated = false;
+            //push all ints into the ints array
+            selected_ints.push(clickedInt);
+            //form current number by stringing along all previous ints
+            currentNum = parseFloat(selected_ints.join(''));
+            }
+        render();
 }
 
 // *handling of any operation function*
@@ -151,6 +193,11 @@ function getStringOperation() {
     return operation;
 }
 
+// *check our operation isn't too long for the display*
+function checkOperationLength() {
+  if (displayEl.textContent.length > 10) {return false;}
+};
+
 
 // *DOM Render function*
 function render() {
@@ -198,3 +245,27 @@ function render() {
         }
     }
 };
+
+//briefly change color of button when selected (useful for keyboard presses)
+function animateClick(calcButtonToPress) {
+
+    let allCalcButtons = calcButtonsEl.children;
+    
+    for(button of allCalcButtons) {
+        if (calcButtonToPress === button.innerText) {
+            //change background color
+            button.style.backgroundColor = '#32324a';
+
+            //reset button color after small delay
+            setTimeout(function() {
+            button.style.backgroundColor = '#13131C';
+            }, 20);
+
+            break;
+        }
+    }
+}
+
+
+
+
